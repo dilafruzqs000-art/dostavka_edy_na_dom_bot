@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT CHECK(role IN ('client', 'courier')),
     name TEXT,
     phone TEXT,
-    is_active BOOLEAN DEFAULT 1  # для курьеров: на линии или нет
+    is_active BOOLEAN DEFAULT 1
 )
 ''')
 
