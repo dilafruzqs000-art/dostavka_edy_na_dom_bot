@@ -1,17 +1,23 @@
 import telebot
 from telebot import types
 from flask import Flask, request, jsonify
-import json
 import threading
+import os
 
 # ========== ТВОИ ДАННЫЕ ==========
 BOT_TOKEN = "8462463429:AAHFZh-P1jFLU47ll6jx8QuSyNI-oRtu5K0"
-ADMIN_CHAT_ID = "8462463429"
+ADMIN_CHAT_ID = "8180932270"
 
 bot = telebot.TeleBot(BOT_TOKEN)
 app = Flask(__name__)
 
-# ========== СЕРВЕР ДЛЯ ЗАКАЗОВ ==========
+# Запускаем бота в фоне
+threading.Thread(target=bot.infinity_polling, daemon=True).start()
+
+@app.route('/')
+def index():
+    return "Бот для доставки еды запущен!"
+
 @app.route('/order', methods=['POST'])
 def receive_order():
     try:
@@ -32,7 +38,6 @@ def receive_order():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ========== КНОПКА МЕНЮ ==========
 @bot.message_handler(commands=['start'])
 def start(message):
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -47,11 +52,6 @@ def start(message):
         reply_markup=markup
     )
 
-# ========== ЗАПУСК ==========
-def run_flask():
-    app.run(host='0.0.0.0', port=5000)
-
 if __name__ == '__main__':
-    threading.Thread(target=run_flask, daemon=True).start()
-    print("✅ Бот запущен...")
-    bot.infinity_polling()
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
